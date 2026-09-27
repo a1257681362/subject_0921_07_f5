@@ -1,0 +1,129 @@
+== 启动应用（端口 18081，验证库 ./data/evops-image-verify，图片目录 ./data/image-verify-store）==
+应用已就绪
+
+== 步骤 1：准备数据（农机 + 作业单）==
+作业单 WO-IMG-ACC-0001 id=1
+
+== 步骤 2：上传田间照片（1600x1200，机手工号 JH0231，拍摄时间 2026-09-26 15:30:00）==
+MADE /tmp/evops-image-verify/field-001.jpg 1600x1200
+{
+    "success": true,
+    "message": "OK",
+    "data": {
+        "duplicated": false,
+        "image": {
+            "id": 1,
+            "fileName": "field-001.jpg",
+            "capturedAt": "2026-09-26T15:30:00",
+            "operatorCode": "JH0231",
+            "fileSize": 38725,
+            "width": 1600,
+            "height": 1200,
+            "thumbWidth": 300,
+            "thumbHeight": 225,
+            "thumbUrl": "/api/work-orders/images/1/thumb",
+            "originalUrl": "/api/work-orders/images/1/original",
+            "createTime": "2026-09-27T04:53:07.125"
+        }
+    }
+}
+上传成功：imageId=1，缩略图 300x225
+
+== 步骤 3：下载缩略图，验证最长边 300px ==
+缩略图尺寸：300x225
+./data/image-verify-store/original/1:
+total 40
+drwxr-xr-x 2 claude claude    82 Sep 27 04:53 .
+drwxr-xr-x 3 claude claude    15 Sep 27 04:53 ..
+-rw-r--r-- 1 claude claude 38725 Sep 27 04:53 e67c4ea3a4ab530dc9185ab533d58fe238515333b4c5410edc45285f4c3f39f0.jpg
+
+./data/image-verify-store/thumbs/1:
+total 8
+drwxr-xr-x 2 claude claude   82 Sep 27 04:53 .
+drwxr-xr-x 3 claude claude   15 Sep 27 04:53 ..
+-rw-r--r-- 1 claude claude 5555 Sep 27 04:53 e67c4ea3a4ab530dc9185ab533d58fe238515333b4c5410edc45285f4c3f39f0.jpg
+原图与缩略图分目录落盘确认（original/ 与 thumbs/ 独立）
+
+== 步骤 4：下载原图，与上传文件逐字节比对（原图保留、未被改写）==
+原图字节一致：IDENTICAL
+
+== 步骤 5：同名同内容重复上传 → 只处理一次（幂等）==
+{
+    "success": true,
+    "message": "OK",
+    "data": {
+        "duplicated": true,
+        "image": {
+            "id": 1,
+            "fileName": "field-001.jpg",
+            "capturedAt": "2026-09-26T15:30:00",
+            "operatorCode": "JH0231",
+            "fileSize": 38725,
+            "width": 1600,
+            "height": 1200,
+            "thumbWidth": 300,
+            "thumbHeight": 225,
+            "thumbUrl": "/api/work-orders/images/1/thumb",
+            "originalUrl": "/api/work-orders/images/1/original",
+            "createTime": "2026-09-27T04:53:07.125"
+        }
+    }
+}
+重复上传幂等：仍只有 1 条记录、1 份文件
+
+== 步骤 6：同名不同内容 → 拒绝，原图不动 ==
+{
+    "success": false,
+    "message": "\u4f5c\u4e1a\u5355\u4e0b\u5df2\u5b58\u5728\u540c\u540d\u56fe\u7247\u4e14\u5185\u5bb9\u4e0d\u540c\uff0c\u539f\u56fe\u4fdd\u7559\u4e0d\u8986\u76d6\uff1b\u8bf7\u6539\u540d\u540e\u4e0a\u4f20: field-001.jpg",
+    "data": null
+}
+同名异内容被拒后，原图仍是首次上传字节（永不覆盖）
+
+== 步骤 7：第二张不同名照片正常上传；列表/详情带缩略图地址（供列表与报表）==
+{
+    "success": false,
+    "message": "\u7f3a\u5c11\u5fc5\u8981\u53c2\u6570: operatorCode",
+    "data": null
+}
+缺机手工号（水印要素）上传被拒绝，符合口径
+{
+    "success": true,
+    "message": "OK",
+    "data": [
+        {
+            "id": 1,
+            "fileName": "field-001.jpg",
+            "capturedAt": "2026-09-26T15:30:00",
+            "operatorCode": "JH0231",
+            "fileSize": 38725,
+            "width": 1600,
+            "height": 1200,
+            "thumbWidth": 300,
+            "thumbHeight": 225,
+            "thumbUrl": "/api/work-orders/images/1/thumb",
+            "originalUrl": "/api/work-orders/images/1/original",
+            "createTime": "2026-09-27T04:53:07.125"
+        },
+        {
+            "id": 2,
+            "fileName": "field-002.jpg",
+            "capturedAt": "2026-09-27T04:53:09.831",
+            "operatorCode": "JH0231",
+            "fileSize": 38673,
+            "width": 1600,
+            "height": 1200,
+            "thumbWidth": 300,
+            "thumbHeight": 225,
+            "thumbUrl": "/api/work-orders/images/2/thumb",
+            "originalUrl": "/api/work-orders/images/2/original",
+            "createTime": "2026-09-27T04:53:09.926"
+        }
+    ]
+}
+列表与详情均返回缩略图地址 thumbUrl，供列表与报表引用
+
+== 全部验证通过 ==
+- 上传即生成 300px 缩略图，独立 thumbs/ 目录，水印含拍摄时间与机手工号
+- 原图保留在 original/，下载字节与上传一致，同名异内容被拒且原图未动（永不覆盖）
+- 同名重复上传只处理一次（duplicated=true，记录与文件均不重复）
+- 列表/详情返回 thumbUrl，缩略图用于列表与报表

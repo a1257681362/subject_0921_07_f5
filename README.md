@@ -46,6 +46,10 @@
 | POST | `/api/work-orders/{id}/track-area` | 登记轨迹核算面积（权威） |
 | POST | `/api/work-orders/{id}/manual-area` | 人工上报面积（仅参考） |
 | POST | `/api/work-orders/{id}/reverse` | 红冲，另开反向单 |
+| POST | `/api/work-orders/{id}/images` | 上传作业图片（multipart：file、operatorCode、capturedAt 可选、requestNo），自动生成 300px 水印缩略图 |
+| GET | `/api/work-orders/{id}/images` | 图片列表（每条带缩略图地址，供列表与报表） |
+| GET | `/api/work-orders/images/{imageId}/thumb` | 缩略图下载（列表与报表引用此地址） |
+| GET | `/api/work-orders/images/{imageId}/original` | 原图下载（仅备查） |
 
 作业单文件交换（CSV）：`GET /api/work-orders/export` 导出（可按 status 过滤）、`GET /api/work-orders/import-template` 下载导入模板、`POST /api/work-orders/import` 批量导入（multipart，逐行独立事务，失败行带行号；单号已存在自动跳过，重复导入幂等）。格式与转义规则见 [docs/work-order-csv-exchange.md](docs/work-order-csv-exchange.md)，值班处置见 [docs/work-order-csv-runbook.md](docs/work-order-csv-runbook.md)。
 
@@ -121,3 +125,18 @@
 新增表：`t_settlement`、`t_settlement_item`、`t_settlement_status_log`、`t_settlement_transition`。
 
 验收报告（含状态机图、逐步截图，可重复执行）：[docs/settlement-acceptance-report.md](docs/settlement-acceptance-report.md)。
+
+## F5 作业单图片处理
+
+理事会要求：作业单据图片不再走邮件，由系统统一管起来。上传即处理、原图留档、缩略图供列表与报表。
+
+- **上传即处理**：`POST /api/work-orders/{id}/images`（multipart）收图后自动生成 **300px 缩略图**（最长边 300，等比缩放，小图不放大），底部水印含**拍摄时间 + 机手工号**；原图字节原样保留，不做任何改写。
+- **分目录存储**：`workorder.image.root-dir`（默认 `./data/work-order-images`）下 `original/` 存原图、`thumbs/` 存缩略图，相互独立；落盘文件名取内容 SHA-256（内容寻址），客户端文件名只作元数据，不参与路径，防路径穿越。
+- **原图永不覆盖**：内容寻址 + `CREATE_NEW` 写盘；同一作业单下**同名图只处理一次**——同内容重复上传幂等返回首次记录（`duplicated=true`），同名不同内容直接拒绝并提示改名（`uk_work_order_image_name` 唯一约束兜底并发）。
+- **缩略图用于列表与报表**：`GET /api/work-orders/{id}/images` 与按单号检索的作业单详情都带 `thumbUrl`；报表/列表一律引用缩略图地址，原图地址仅备查。
+- **口径与既有约定一致**：上传走请求号台账（`WORK_ORDER_IMAGE_UPLOAD`，与元数据落库同一事务）；业务/参数异常统一 HTTP 200 + `success=false`；支持 jpg/png/bmp/gif，单文件上限 20MB。
+- 拍摄时间 `capturedAt` 可传 `yyyy-MM-dd HH:mm:ss`，缺省取服务端接收时间；机手工号 `operatorCode` 必填（≤24 字符，建议字母数字，水印用逻辑字体渲染）。
+
+设计与运维细节（存储布局、幂等口径、上线与回滚步骤）：[docs/work-order-image.md](docs/work-order-image.md)。
+
+新增表：`t_work_order_image`（图片元数据与水印要素）。

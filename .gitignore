@@ -1,5 +1,7 @@
 target/
 data/
+backups/
+core.*
 .idea/
 *.iml
 *.log

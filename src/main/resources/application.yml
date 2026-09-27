@@ -30,11 +30,25 @@ spring:
     properties:
       org.quartz.scheduler.instanceName: EvopsScheduler
 
+  servlet:
+    multipart:
+      # 田间手机照片普遍 3~12MB，放宽上传上限；超限由全局异常处理统一返回 success=false
+      max-file-size: 20MB
+      max-request-size: 25MB
+
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.evops
   configuration:
     map-underscore-to-camel-case: true
+
+# 作业单图片处理（F5）
+workorder:
+  image:
+    # 存储根目录：原图落 original/ 子目录，300px 缩略图落 thumbs/ 独立子目录
+    root-dir: ./data/work-order-images
+    # 缩略图最长边像素（等比缩放，小图不放大）
+    thumb-size: 300
 
 # 卫星轨迹账每日勾稽配置
 reconcile:

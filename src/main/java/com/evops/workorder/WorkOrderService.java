@@ -14,6 +14,7 @@ import com.evops.workorder.dto.TrackAreaRequest;
 import com.evops.workorder.dto.WorkOrderCreateRequest;
 import com.evops.workorder.entity.WorkOrder;
 import com.evops.workorder.entity.WorkOrderStatusLog;
+import com.evops.workorder.image.WorkOrderImageService;
 import com.evops.workorder.mapper.WorkOrderMapper;
 import com.evops.workorder.mapper.WorkOrderStatusLogMapper;
 import com.evops.workorder.vo.WorkOrderDetail;
@@ -31,15 +32,18 @@ public class WorkOrderService {
     private final WorkOrderStatusLogMapper statusLogMapper;
     private final MachineMapper machineMapper;
     private final RequestRecordService requestRecordService;
+    private final WorkOrderImageService imageService;
 
     public WorkOrderService(WorkOrderMapper workOrderMapper,
                             WorkOrderStatusLogMapper statusLogMapper,
                             MachineMapper machineMapper,
-                            RequestRecordService requestRecordService) {
+                            RequestRecordService requestRecordService,
+                            WorkOrderImageService imageService) {
         this.workOrderMapper = workOrderMapper;
         this.statusLogMapper = statusLogMapper;
         this.machineMapper = machineMapper;
         this.requestRecordService = requestRecordService;
+        this.imageService = imageService;
     }
 
     /**
@@ -227,6 +231,7 @@ public class WorkOrderService {
         WorkOrderDetail detail = new WorkOrderDetail();
         detail.setOrder(order);
         detail.setStatusLogs(logs);
+        detail.setImages(imageService.listViews(order.getId()));
         return detail;
     }
 }

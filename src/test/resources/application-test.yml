@@ -14,3 +14,9 @@ reconcile:
   tolerance: 0.05
   engine-mode: PARALLEL
   cutover-batch-size: 2
+
+workorder:
+  image:
+    # 测试落盘到构建目录，不污染 data/
+    root-dir: ./target/test-work-order-images
+    thumb-size: 300

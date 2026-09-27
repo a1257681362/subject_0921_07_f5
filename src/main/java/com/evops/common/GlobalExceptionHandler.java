@@ -4,8 +4,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -42,6 +44,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ApiResponse<Void> handleUnreadable(HttpMessageNotReadableException ex) {
         return ApiResponse.fail("请求体格式不正确");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ApiResponse<Void> handleMissingParam(MissingServletRequestParameterException ex) {
+        return ApiResponse.fail("缺少必要参数: " + ex.getParameterName());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ApiResponse<Void> handleMultipart(MultipartException ex) {
+        return ApiResponse.fail("上传失败：文件超过大小限制或表单不正确");
     }
 
     @ExceptionHandler(Exception.class)
