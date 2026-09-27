@@ -1,0 +1,42 @@
+# 审批通过（CONFIRMED→APPROVED）
+$ call POST /api/settlements/1/transit '{"targetStatus":"APPROVED","version":1,"operator":"合作社-老李","requestNo":"REQ-ACC-T-002"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "createTime": "2026-09-27T03:34:27.899",
+    "settlementNo": "ST202609-0001",
+    "period": "2026-09",
+    "status": "APPROVED",
+    "orderCount": 2,
+    "totalArea": 20.8,
+    "unitPrice": 80.0,
+    "totalAmount": 1664.0,
+    "activeTag": "ACTIVE",
+    "remark": "2026年9月收割作业费",
+    "version": 2
+  }
+}
+
+# 付款（APPROVED→PAID）
+$ call POST /api/settlements/1/transit '{"targetStatus":"PAID","version":2,"operator":"出纳-小赵","requestNo":"REQ-ACC-T-003","remark":"9月作业费已转账"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "createTime": "2026-09-27T03:34:27.899",
+    "settlementNo": "ST202609-0001",
+    "period": "2026-09",
+    "status": "PAID",
+    "orderCount": 2,
+    "totalArea": 20.8,
+    "unitPrice": 80.0,
+    "totalAmount": 1664.0,
+    "activeTag": "ACTIVE",
+    "remark": "2026年9月收割作业费",
+    "version": 3
+  }
+}
+

@@ -1,0 +1,72 @@
+# 状态机迁移规则全部来自配置表，可在线查看
+$ call GET /api/settlements/transitions
+{
+  "success": true,
+  "message": "OK",
+  "data": [
+    {
+      "id": 1,
+      "fromStatus": "DRAFT",
+      "toStatus": "CONFIRMED",
+      "actionName": "确认",
+      "enabled": "1",
+      "remark": "草稿核对无误后确认",
+      "version": 0
+    },
+    {
+      "id": 2,
+      "fromStatus": "DRAFT",
+      "toStatus": "CANCELLED",
+      "actionName": "作废",
+      "enabled": "1",
+      "remark": "草稿作废，明细作业单释放可重新结算",
+      "version": 0
+    },
+    {
+      "id": 3,
+      "fromStatus": "CONFIRMED",
+      "toStatus": "APPROVED",
+      "actionName": "审批通过",
+      "enabled": "1",
+      "remark": "财务/负责人审批",
+      "version": 0
+    },
+    {
+      "id": 4,
+      "fromStatus": "CONFIRMED",
+      "toStatus": "DRAFT",
+      "actionName": "退回草稿",
+      "enabled": "1",
+      "remark": "确认后发现差错，退回重新核对",
+      "version": 0
+    },
+    {
+      "id": 5,
+      "fromStatus": "CONFIRMED",
+      "toStatus": "CANCELLED",
+      "actionName": "作废",
+      "enabled": "1",
+      "remark": "确认后作废，明细作业单释放可重新结算",
+      "version": 0
+    },
+    {
+      "id": 6,
+      "fromStatus": "APPROVED",
+      "toStatus": "PAID",
+      "actionName": "付款",
+      "enabled": "1",
+      "remark": "付款完成，结算单终结",
+      "version": 0
+    },
+    {
+      "id": 7,
+      "fromStatus": "APPROVED",
+      "toStatus": "CONFIRMED",
+      "actionName": "审批退回",
+      "enabled": "1",
+      "remark": "审批不通过退回确认环节",
+      "version": 0
+    }
+  ]
+}
+

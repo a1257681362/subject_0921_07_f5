@@ -1,0 +1,39 @@
+# 管理员停用 已确认→已审批 规则（带规则版本与操作人）
+$ call POST /api/settlements/transitions/3/toggle '{"enabled":false,"version":0,"operator":"管理员-小周","requestNo":"REQ-ACC-R-001"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 3,
+    "fromStatus": "CONFIRMED",
+    "toStatus": "APPROVED",
+    "actionName": "审批通过",
+    "enabled": "0",
+    "remark": "财务/负责人审批",
+    "version": 1
+  }
+}
+
+# 规则停用后，审批流转立即被拒
+$ call POST /api/settlements/1/transit '{"targetStatus":"APPROVED","version":1,"operator":"合作社-老李","requestNo":"REQ-ACC-T-903"}'
+{
+  "success": false,
+  "message": "流转 CONFIRMED -> APPROVED（审批通过）已被配置停用，请联系管理员启用后再操作"
+}
+
+# 重新启用规则
+$ call POST /api/settlements/transitions/3/toggle '{"enabled":true,"version":1,"operator":"管理员-小周","requestNo":"REQ-ACC-R-002"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 3,
+    "fromStatus": "CONFIRMED",
+    "toStatus": "APPROVED",
+    "actionName": "审批通过",
+    "enabled": "1",
+    "remark": "财务/负责人审批",
+    "version": 2
+  }
+}
+

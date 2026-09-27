@@ -1,0 +1,85 @@
+# 生成 2026-09 结算单：已完工未结算作业单自动汇总成单
+$ POST /api/settlements/generate  {period:2026-09, unitPrice:80.00, operator:财务-小王}
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "createTime": "2026-09-27T03:34:27.899",
+    "settlementNo": "ST202609-0001",
+    "period": "2026-09",
+    "status": "DRAFT",
+    "orderCount": 2,
+    "totalArea": 20.8,
+    "unitPrice": 80.0,
+    "totalAmount": 1664.0,
+    "activeTag": "ACTIVE",
+    "remark": "2026年9月收割作业费",
+    "version": 0
+  }
+}
+
+# 结算单详情：明细快照（单号/面积/单价/金额）已落库，无需导出二次加工
+$ GET /api/settlements/1
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "settlement": {
+      "id": 1,
+      "createTime": "2026-09-27T03:34:27.899",
+      "settlementNo": "ST202609-0001",
+      "period": "2026-09",
+      "status": "DRAFT",
+      "orderCount": 2,
+      "totalArea": 20.8,
+      "unitPrice": 80.0,
+      "totalAmount": 1664.0,
+      "activeTag": "ACTIVE",
+      "remark": "2026年9月收割作业费",
+      "version": 0
+    },
+    "items": [
+      {
+        "id": 1,
+        "settlementId": 1,
+        "orderId": 1,
+        "orderNo": "WO-ACC-0001",
+        "machineId": 1,
+        "operationType": "收割",
+        "trackArea": 12.5,
+        "unitPrice": 80.0,
+        "amount": 1000.0,
+        "activeTag": "ACTIVE",
+        "createTime": "2026-09-27T03:34:27.904"
+      },
+      {
+        "id": 2,
+        "settlementId": 1,
+        "orderId": 2,
+        "orderNo": "WO-ACC-0002",
+        "machineId": 1,
+        "operationType": "收割",
+        "trackArea": 8.3,
+        "unitPrice": 80.0,
+        "amount": 664.0,
+        "activeTag": "ACTIVE",
+        "createTime": "2026-09-27T03:34:27.907"
+      }
+    ],
+    "statusLogs": [
+      {
+        "id": 1,
+        "settlementId": 1,
+        "settlementNo": "ST202609-0001",
+        "toStatus": "DRAFT",
+        "toVersion": 0,
+        "operator": "财务-小王",
+        "requestNo": "REQ-ACC-G-001",
+        "remark": "结算单生成（2 张作业单，合计 20.80 亩）",
+        "createTime": "2026-09-27T03:34:27.91"
+      }
+    ]
+  }
+}
+

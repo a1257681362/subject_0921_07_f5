@@ -1,0 +1,7 @@
+# 已付款是终态：任何继续流转都被拒绝
+$ call POST /api/settlements/1/transit '{"targetStatus":"CONFIRMED","version":3,"operator":"财务-小王","requestNo":"REQ-ACC-T-904"}'
+{
+  "success": false,
+  "message": "结算单状态不允许从 PAID 流转到 CONFIRMED；当前可流转方向: 无（终态）"
+}
+

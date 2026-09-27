@@ -1,0 +1,7 @@
+# 草稿直接付款：状态机拒绝，并提示当前可去方向
+$ call POST /api/settlements/1/transit '{"targetStatus":"PAID","version":0,"operator":"财务-小王","requestNo":"REQ-ACC-T-901"}'
+{
+  "success": false,
+  "message": "结算单状态不允许从 DRAFT 流转到 PAID；当前可流转方向: CONFIRMED(确认)、CANCELLED(作废)"
+}
+

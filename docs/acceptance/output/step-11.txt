@@ -1,0 +1,67 @@
+# 新期间生成结算单（WO-ACC-0003 秸秆还田 6.00 亩 × 60 元）
+$ POST /api/settlements/generate  {period:2026-10, unitPrice:60.00, operator:财务-小王}
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 2,
+    "createTime": "2026-09-27T03:34:28.795",
+    "settlementNo": "ST202610-0001",
+    "period": "2026-10",
+    "status": "DRAFT",
+    "orderCount": 1,
+    "totalArea": 6.0,
+    "unitPrice": 60.0,
+    "totalAmount": 360.0,
+    "activeTag": "ACTIVE",
+    "version": 0
+  }
+}
+
+# 作废必须填原因：空原因被拒绝
+$ call POST /api/settlements/2/transit '{"targetStatus":"CANCELLED","version":0,"operator":"财务-小王","requestNo":"REQ-ACC-T-905"}'
+{
+  "success": false,
+  "message": "作废必须填写作废原因（remark）"
+}
+
+# 带原因作废成功
+$ call POST /api/settlements/2/transit '{"targetStatus":"CANCELLED","version":0,"operator":"财务-小王","requestNo":"REQ-ACC-T-004","remark":"单价录错，作废重开"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 2,
+    "createTime": "2026-09-27T03:34:28.795",
+    "settlementNo": "ST202610-0001",
+    "period": "2026-10",
+    "status": "CANCELLED",
+    "orderCount": 1,
+    "totalArea": 6.0,
+    "unitPrice": 60.0,
+    "totalAmount": 360.0,
+    "activeTag": "CANCELLED-2",
+    "version": 1
+  }
+}
+
+# 作废后作业单与期间释放，可重新生成（单号序号不复用，新单 -0002）
+$ call POST /api/settlements/generate '{"period":"2026-10","unitPrice":62.00,"operator":"财务-小王","requestNo":"REQ-ACC-G-003"}'
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 3,
+    "createTime": "2026-09-27T03:34:29.012",
+    "settlementNo": "ST202610-0002",
+    "period": "2026-10",
+    "status": "DRAFT",
+    "orderCount": 1,
+    "totalArea": 6.0,
+    "unitPrice": 62.0,
+    "totalAmount": 372.0,
+    "activeTag": "ACTIVE",
+    "version": 0
+  }
+}
+

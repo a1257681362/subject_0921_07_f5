@@ -1,0 +1,103 @@
+# 结算单详情：从生成到付款的每一步都有 状态变化、前后版本、操作人、请求号、时间
+$ call GET /api/settlements/1
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "settlement": {
+      "id": 1,
+      "createTime": "2026-09-27T03:34:27.899",
+      "settlementNo": "ST202609-0001",
+      "period": "2026-09",
+      "status": "PAID",
+      "orderCount": 2,
+      "totalArea": 20.8,
+      "unitPrice": 80.0,
+      "totalAmount": 1664.0,
+      "activeTag": "ACTIVE",
+      "remark": "2026年9月收割作业费",
+      "version": 3
+    },
+    "items": [
+      {
+        "id": 1,
+        "settlementId": 1,
+        "orderId": 1,
+        "orderNo": "WO-ACC-0001",
+        "machineId": 1,
+        "operationType": "收割",
+        "trackArea": 12.5,
+        "unitPrice": 80.0,
+        "amount": 1000.0,
+        "activeTag": "ACTIVE",
+        "createTime": "2026-09-27T03:34:27.904"
+      },
+      {
+        "id": 2,
+        "settlementId": 1,
+        "orderId": 2,
+        "orderNo": "WO-ACC-0002",
+        "machineId": 1,
+        "operationType": "收割",
+        "trackArea": 8.3,
+        "unitPrice": 80.0,
+        "amount": 664.0,
+        "activeTag": "ACTIVE",
+        "createTime": "2026-09-27T03:34:27.907"
+      }
+    ],
+    "statusLogs": [
+      {
+        "id": 1,
+        "settlementId": 1,
+        "settlementNo": "ST202609-0001",
+        "toStatus": "DRAFT",
+        "toVersion": 0,
+        "operator": "财务-小王",
+        "requestNo": "REQ-ACC-G-001",
+        "remark": "结算单生成（2 张作业单，合计 20.80 亩）",
+        "createTime": "2026-09-27T03:34:27.91"
+      },
+      {
+        "id": 2,
+        "settlementId": 1,
+        "settlementNo": "ST202609-0001",
+        "fromStatus": "DRAFT",
+        "toStatus": "CONFIRMED",
+        "fromVersion": 0,
+        "toVersion": 1,
+        "operator": "财务-小王",
+        "requestNo": "REQ-ACC-T-001",
+        "remark": "确认",
+        "createTime": "2026-09-27T03:34:28.231"
+      },
+      {
+        "id": 3,
+        "settlementId": 1,
+        "settlementNo": "ST202609-0001",
+        "fromStatus": "CONFIRMED",
+        "toStatus": "APPROVED",
+        "fromVersion": 1,
+        "toVersion": 2,
+        "operator": "合作社-老李",
+        "requestNo": "REQ-ACC-T-002",
+        "remark": "审批通过",
+        "createTime": "2026-09-27T03:34:28.482"
+      },
+      {
+        "id": 4,
+        "settlementId": 1,
+        "settlementNo": "ST202609-0001",
+        "fromStatus": "APPROVED",
+        "toStatus": "PAID",
+        "fromVersion": 2,
+        "toVersion": 3,
+        "operator": "出纳-小赵",
+        "requestNo": "REQ-ACC-T-003",
+        "remark": "9月作业费已转账",
+        "createTime": "2026-09-27T03:34:28.517"
+      }
+    ]
+  }
+}
+

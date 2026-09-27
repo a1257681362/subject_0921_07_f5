@@ -1,0 +1,53 @@
+# 农机建档
+$ POST /api/machines  {machineCode:M-ACC-01, machineName:雷沃谷神收割机}
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "createTime": "2026-09-27T03:34:26.977",
+    "machineCode": "M-ACC-01",
+    "machineName": "雷沃谷神收割机",
+    "status": "ACTIVE",
+    "version": 0
+  }
+}
+
+# 作业单建档（两张）
+$ POST /api/work-orders  {orderNo:WO-ACC-0001, operationType:收割, plotName:东洼子3号地}
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "createTime": "2026-09-27T03:34:27.185",
+    "orderNo": "WO-ACC-0001",
+    "machineId": 1,
+    "operationType": "收割",
+    "plotName": "东洼子3号地",
+    "status": "CREATED",
+    "reversalFlag": "0",
+    "version": 0
+  }
+}
+
+# 两张作业单登记轨迹面积并完工（WO-ACC-0001 计 12.50 亩，WO-ACC-0002 计 8.30 亩）
+$ POST /api/work-orders/2/transit  {targetStatus:COMPLETED}  ← 第二张完工
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 2,
+    "createTime": "2026-09-27T03:34:27.286",
+    "orderNo": "WO-ACC-0002",
+    "machineId": 1,
+    "operationType": "收割",
+    "plotName": "西坡7号地",
+    "trackArea": 8.3,
+    "trackTime": "2026-09-27T03:34:27.638",
+    "status": "COMPLETED",
+    "reversalFlag": "0",
+    "version": 3
+  }
+}
+

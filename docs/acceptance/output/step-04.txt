@@ -1,0 +1,7 @@
+# 携带过期版本(version=9)流转：乐观锁拒绝，提示当前版本
+$ call POST /api/settlements/1/transit '{"targetStatus":"CONFIRMED","version":9,"operator":"财务-小王","requestNo":"REQ-ACC-T-902"}'
+{
+  "success": false,
+  "message": "结算单已被他人变更（当前版本 0，请求版本 9），请刷新后重试"
+}
+
