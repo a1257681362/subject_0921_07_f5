@@ -14,3 +14,10 @@ reconcile:
   tolerance: 0.05
   engine-mode: PARALLEL
   cutover-batch-size: 2
+
+photo:
+  # 测试落盘到临时目录，各用例类自分子目录，跑完即弃
+  root-dir: ${java.io.tmpdir}/evops-photo-test
+  thumb-max-side: 300
+  allowed-types: jpg,jpeg,png
+  max-file-size: 20971520

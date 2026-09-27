@@ -30,11 +30,28 @@ spring:
     properties:
       org.quartz.scheduler.instanceName: EvopsScheduler
 
+  servlet:
+    multipart:
+      # 现场照片单张上限 20MB，一次一张
+      max-file-size: 20MB
+      max-request-size: 20MB
+
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.evops
   configuration:
     map-underscore-to-camel-case: true
+
+# 作业单现场照片
+photo:
+  # 存储根目录：original/ 存原图（永不覆盖），thumb/ 存缩略图（独立目录）
+  root-dir: ./data/photos
+  # 缩略图最长边（px），等比缩放
+  thumb-max-side: 300
+  # 允许的图片格式（按内容识别，不只信扩展名）
+  allowed-types: jpg,jpeg,png
+  # 单张大小上限（字节），与 multipart 限制一致
+  max-file-size: 20971520
 
 # 卫星轨迹账每日勾稽配置
 reconcile:

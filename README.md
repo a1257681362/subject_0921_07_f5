@@ -46,6 +46,10 @@
 | POST | `/api/work-orders/{id}/track-area` | 登记轨迹核算面积（权威） |
 | POST | `/api/work-orders/{id}/manual-area` | 人工上报面积（仅参考） |
 | POST | `/api/work-orders/{id}/reverse` | 红冲，另开反向单 |
+| POST | `/api/work-orders/{id}/photos` | 上传现场照片（multipart：file、shotTime、operatorCode、requestNo），自动生成 300px 水印缩略图 |
+| GET | `/api/work-orders/{id}/photos` | 照片列表（含缩略图地址，供列表与报表引用） |
+| GET | `/api/work-orders/photos/{photoId}/thumb` | 缩略图（300px，水印：拍摄时间 + 机手工号） |
+| GET | `/api/work-orders/photos/{photoId}/original` | 原图下载（字节级保留，永不覆盖） |
 
 作业单文件交换（CSV）：`GET /api/work-orders/export` 导出（可按 status 过滤）、`GET /api/work-orders/import-template` 下载导入模板、`POST /api/work-orders/import` 批量导入（multipart，逐行独立事务，失败行带行号；单号已存在自动跳过，重复导入幂等）。格式与转义规则见 [docs/work-order-csv-exchange.md](docs/work-order-csv-exchange.md)，值班处置见 [docs/work-order-csv-runbook.md](docs/work-order-csv-runbook.md)。
 
@@ -121,3 +125,17 @@
 新增表：`t_settlement`、`t_settlement_item`、`t_settlement_status_log`、`t_settlement_transition`。
 
 验收报告（含状态机图、逐步截图，可重复执行）：[docs/settlement-acceptance-report.md](docs/settlement-acceptance-report.md)。
+
+## F5 作业单现场照片
+
+现场照片不再走邮件，随单入系统：上传即处理，列表与报表直接用缩略图。
+
+- **上传即处理**：`POST /api/work-orders/{id}/photos`（multipart：file、shotTime 拍摄时间、operatorCode 机手工号、requestNo）。原图按内容 SHA-256 寻址落盘 `photo.root-dir/original/<作业单ID>/`，同时生成 300px（最长边、等比、小图不放大）缩略图到**独立目录** `thumb/<作业单ID>/`。
+- **水印**：只打在缩略图上（右下角半透明底条白字：`拍摄时间:yyyy-MM-dd HH:mm:ss 机手:工号`），中文字体打包在 `resources/fonts/` 内，服务器无需装字体。**原图不加任何水印**，字节级保留。
+- **原图永不覆盖**：落盘一律 `CREATE_NEW`，内容寻址命名（同名即同内容），已存在即复用，任何路径都不会重写已有文件；台账登记内容 SHA-256 供核对。
+- **同名只处理一次**：同一作业单下同名图片重复上传，直接返回已登记记录（`duplicate=true`），不重复处理、不重复落盘；`uk_order_photo_name(order_id, file_name)` 唯一约束兜底，JVM 分段锁串行同名单并发。不同作业单传同名图各自正常处理。幂等跳过不消耗请求号（与 CSV 导入"已存在跳过"同口径）；已消费的请求号重放仍按台账拒绝。
+- **列表与报表**：`GET /api/work-orders/{id}/photos` 返回照片清单（含 `thumbUrl`、`thumbWidth/Height`），列表与报表直接引用缩略图；`GET /api/work-orders/photos/{photoId}/thumb|original` 取图。
+- **限制**：JPG/PNG（按内容识别，不只信扩展名），单张 ≤ 20MB；上传走请求号台账（`WORK_ORDER_PHOTO_UPLOAD`），与照片登记同一事务。
+- 配置：`photo.root-dir`（默认 `./data/photos`）、`photo.thumb-max-side`（默认 300）、`photo.allowed-types`、`photo.max-file-size`。
+
+新增表：`t_work_order_photo`。上线操作流（备份→变更→验证）：[docs/work-order-photo-runbook.md](docs/work-order-photo-runbook.md)。

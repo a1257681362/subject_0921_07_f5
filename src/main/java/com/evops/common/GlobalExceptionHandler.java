@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -42,6 +43,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ApiResponse<Void> handleUnreadable(HttpMessageNotReadableException ex) {
         return ApiResponse.fail("请求体格式不正确");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ApiResponse<Void> handleUploadSize(MaxUploadSizeExceededException ex) {
+        return ApiResponse.fail("上传文件超过大小限制");
     }
 
     @ExceptionHandler(Exception.class)
